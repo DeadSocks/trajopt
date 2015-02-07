@@ -32,8 +32,3 @@ target_link_libraries(arm_to_cart_target ${OpenRAVE_BOTH_LIBRARIES} sco utils js
 add_executable(arm_to_joint_target arm_to_joint_target.cpp atlas_utils.cpp)
 set_target_properties(arm_to_joint_target PROPERTIES COMPILE_FLAGS "-std=c++0x")
 target_link_libraries(arm_to_joint_target ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} sco utils json osgviewer trajopt)
-
-add_executable(position_base position_base.cpp atlas_utils.cpp)
-set_target_properties(position_base PROPERTIES COMPILE_FLAGS "-std=c++0x")
-target_link_libraries(position_base ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} sco utils json osgviewer trajopt)
-
