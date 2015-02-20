@@ -1,6 +1,5 @@
 /*
  * position_base.cpp
- *
  *  Created on: Feb 3, 2015
  *      Author: odell
  */
@@ -9,19 +8,17 @@
 #include <iostream>
 #include <openrave/openrave.h>
 #include <openrave-0.9/openrave-core.h>
-#include <trajopt/problem_description.hpp>
-#include <utils/interpolation.hpp>
+//#include <trajopt/problem_description.hpp>//Add these back if atlas_utils.hpp is removed
+//#include <utils/interpolation.hpp>//see above
 #include "../src/osgviewer/osgviewer.hpp"
 #include "atlas_utils.hpp"
 
 //PARAMETERS
-string ENV_FILE = "data/pr2test1.env.xml";
-int XYZ_TARGET [3]= {0.5,0,0.9};
-int QUAT_TARGET [4]= {1,0,0,0};
-string LINK_NAME = "r_gripper_tool_frame";
+//string ENV_FILE = "data/pr2test1.env.xml";
+float XYZ_TARGET [3] = {0.5,0,0.9};
+float QUAT_TARGET [4] = {1,0,0,0};
+//string link_name = "r_gripper_tool_frame";
 //
-
-}
 
 int main(){
 	OpenRAVE::RaveInitialize(true);
@@ -32,66 +29,156 @@ int main(){
 
 	penv->SetDebugLevel(OpenRAVE::Level_Debug);
 
-	penv->Load(ENV_FILE);
+	penv->Load("data/pr2test1.env.xml");
+
 	OpenRAVE::RobotBasePtr robot = penv->GetRobot("pr2");
 
 	assert(robot);
 
-	std::vector<double> joints = {-1.832, -0.332, -1.011, -1.437, -1.1  , -2.106,  3.074};
-	std::vector<double> xyz_target = {0.5, 0, 0.9};
-	std::vector<double> quat_target = {1, 0, 0, 0}; 
-
+	//std::vector<double> joints = {-1.832, -0.332, -1.011, -1.437, -1.1  , -2.106,  3.074};
+	std::vector<double> xyz_targ = {0.5, 0, 0.9};
+	std::vector<double> quat_targ = {1, 0, 0, 0}; 
+	//std::vector<double> DofVals = {-1.76080454, -0.1797336, -1.99076666, -0.21800647, 0.73899571, -0.18675692, 2.13973504, 0.14755146, 0.38328063, -0.48618576, 1.33518369};
+	std::vector<double> DofVals = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 	OpenRAVE::RobotBase::ManipulatorPtr rightArm = robot->GetManipulator("rightarm");
 
-	robot->SetDOFValues(joints,1,rightArm->GetArmIndices());
+	//robot->SetDOFValues(joints,1,rightArm->GetArmIndices());
+	robot->SetDOFValues(DofVals);
 
-	Transform init_transform = Transform(Vector(1,0,0,0),Vector(0, 0.0, 0.0));
+	OpenRAVE::Transform init_transform = OpenRAVE::Transform(OpenRAVE::Vector(1,0,0,0),OpenRAVE::Vector(0, 0.0, 0.0));
 	robot->SetTransform(init_transform);
 	//robot->Set(joints);
 
-	std::cout << convertDoubleVectortoString(joints) << std::endl;
+	//std::cout << convertDoubleVectortoString(joints) << std::endl;
 
 	//Create string stream
 	std::stringstream request;
+
 	//"Fill the JSON file:
+	/*
 	request << "{\"basic_info\": { \
 	    \"n_steps\" : 1, \
 	    \"manip\" : \"active\", \
 	    \"start_fixed\" : false \
-	  }, \
+	  },\
 	  \"costs\" : [\
 	  {\
 	    \"type\" : \"collision\",\
-	    \"params\": {\"coeffs\" : [10], \"dist_pen\" : [0.025]}\
+	    \"params\": {\"coeffs\" : [10], \
+	    			\"dist_pen\" : [0.025] \
+	    			}\
 	  },\
-	  ],\
+	  ], \
 	  \"constraints\" : [\
 	  {\
 	    \"type\" : \"pose\",\
-	    \"name\" : \"final_pose\"
-	    \"params\" : {
-	    			\"pos_coeffs\" : [1,1,1],\
+	    \"name\" : \"final_pose\",\
+	    \"params\" : {\"pos_coeffs\" : [1,1,1],\
 	    			\"rot_coeffs\" : [1,1,1],\
 	    			\"xyz\" : "<< convertDoubleVectortoString(xyz_targ) <<",\
 	                \"wxyz\" : "<< convertDoubleVectortoString(quat_targ) <<",\
-					\"link\": "<< link_name <<",\
+					\"link\": r_gripper_tool_frame\
 	            }\
 	  }\
 	  ],\
-	  \"init_info\" : [\
-	  {\
+	  \"init_info\" : {\
 	  	\"type\" : \"given_traj\",\
-	  	\"data\" : [1,1,1],\
+	  	\"data\" : [-0.66 -0.04 -0.77 -1.11 -1.82 -1.49 -2.91  0.12  0.98  0.13  3.42]\
 	  }\
-	  ]\
 	}";
+*/
+	
 
+	
+	/*
+JSON v3
+Error: 
+
+  Missing '}' or object member name
+
+0x7fffe614f218
+ERROR missing field: init_info
+
+*/
+
+/*
+request << "{\"basic_info\" : { \
+	        \"n_steps\" : 1,\
+	        \"manip\" : \"active\",\
+	        \"start_fixed\" : false \
+	    },\
+	    \"costs\" : [\
+	    {\
+	        \"type\" : \"collision\",\
+	        \"params\" : {\"coeffs\" : [10],\
+	        	\"dist_pen\" : [0.025] \
+	    		}\
+	    }\
+	    ],\
+	    \"constraints\" :[\
+		    {\
+		        \"type\" : \"pose\",\
+		        \"name\" : \"final_pose\",\
+		        \"params\" : {\"pos_coeffs\" : [1,1,1],\
+		            \"rot_coeffs\" : [1,1,1],\
+		            \"xyz\" : "<< convertDoubleVectortoString(xyz_targ) <<",\
+		            \"wxyz\" : "<< convertDoubleVectortoString(quat_targ) <<",\
+		            \"link\" : \"r_gripper_tool_frame\",\
+		        }\
+		    }\
+	    ],\
+	    \"init_info\" : {\
+    		\"type\" : \"given_traj\",\
+    		\"data\" : [-0.66 -0.04 -0.77 -1.11 -1.82 -1.49 -2.91  0.12  0.98  0.13  3.42]\
+    	}\
+	}";
+	
+*/
+
+	request << "{\"basic_info\":{\
+\"n_steps\":1,\
+\"manip\":\"active\",\
+\"start_fixed\":false \
+},\
+\"costs\":[\
+{\
+\"type\":\"collision\",\
+\"params\":{\"coeffs\" : [10],\
+\"dist_pen\":[0.025] \
+}\
+}\
+],\
+\"constraints\" :[\
+{\
+\"type\":\"pose\",\
+\"name\":\"final_pose\",\
+\"params\":{\"pos_coeffs\":[1,1,1],\
+\"rot_coeffs\":[1,1,1],\
+\"xyz\":"<< convertDoubleVectortoString(xyz_targ) <<",\
+\"wxyz\":"<< convertDoubleVectortoString(quat_targ) <<",\
+\"link\": \"r_gripper_tool_frame\" \
+}\
+}\
+],\
+\"init_info\":{\
+\"type\":\"given_traj\",\
+\"data\": [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]\
+}\
+}";
+//"<< convertDoubleVectortoString(DofVals) <<
+//{-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
+//-1.76080454 -0.1797336 -1.99076666 -0.21800647 0.73899571 -0.18675692 2.13973504 0.14755146 0.38328063 -0.48618576 1.33518369
 	 //Init val generation:
+	 //empty
+	 //\"data\" : [-0.66 -0.04 -0.77 -1.11 -1.82 -1.49 -2.91  0.12  0.98  0.13  3.42]\
+	 //Currently just using previously randomly genearted numbers from the python file in data in init_info in the json
+	 
+	 //request["init_info"]["type"] = "given_traj"
 
-	 //Currently just using [1,1,1] in data in init_info in the json, should make rand stuff using position_base.py for example
 
-
+std::cerr<<"Converting convertDoubleVectortoString(DofVals) to an array of an array:"<<std::endl;
+std::cerr<<convertDoubleVectortoString(DofVals)<<std::endl;
 	 // Parsing:
 	 Json::Value root;
 	 Json::Reader reader;
@@ -99,17 +186,33 @@ int main(){
 	                                   root,
 	                                   false);
 
+//std::cerr<<convertDoubleVectortoString(DofVals).size()<<std::endl;
+//std::cerr<<convertDoubleVectortoString(DofVals)<<std::endl;
+
 	 if(not parsedSuccess)
 	 {
-		 std::cerr<<"Failed to parse JSON"<<std::endl
+		 
+		 std::cerr<<"Failed to parse JSON"<<std::endl;
+		 std::cerr<<convertDoubleVectortoString(DofVals)<<std::endl
 	       <<reader.getFormatedErrorMessages()
 	       <<std::endl;
-	   return 1;
+	   //return 1;
 	 }
 
 	std::cout<<request<<std::endl;
 
-	trajopt::TrajOptProbPtr prob = trajopt::ConstructProblem(root, penv);
+
+	trajopt::ProblemConstructionInfo pci(penv);
+
+	//Altering 
+	trajopt::InitInfo info;
+	//info.type = "given_traj";
+	//info.data = {-0.66, -0.04, -0.77, -1.11, -1.82, -1.49, -2.91,  0.12,  0.98,  0.13,  3.42};
+	pci.init_info = info;
+
+	pci.fromJson(root);
+
+	trajopt::TrajOptProbPtr prob = trajopt::ConstructProblem(pci);
 
 	trajopt::TrajOptResultPtr result = trajopt::OptimizeProblem(prob, true);
 
@@ -125,17 +228,8 @@ int main(){
 
 	robot->SetActiveDOFValues(res);
 
-	boolean success = false;
+	bool success = false;
 
-	//boost::shared_ptr<OSGViewer> _viewer;
-
-	//_viewer.reset();
-
-	//_viewer = OSGViewer::GetOrCreate(penv);
-
-	//penv->Add(_viewer);
-
-	//_viewer->main(true);
 
 	OpenRAVE::RaveDestroy();
 	return 0;
