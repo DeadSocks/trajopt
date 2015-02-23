@@ -28,7 +28,6 @@ int main(){
 	assert(penv);
 
 	penv->SetDebugLevel(OpenRAVE::Level_Debug);
-
 	penv->Load("data/pr2test1.env.xml");
 
 	OpenRAVE::RobotBasePtr robot = penv->GetRobot("pr2");
@@ -36,17 +35,34 @@ int main(){
 	assert(robot);
 
 	//std::vector<double> joints = {-1.832, -0.332, -1.011, -1.437, -1.1  , -2.106,  3.074};
-	std::vector<double> xyz_targ = {0.5, 0, 0.9};
+	std::vector<double> xyz_targ = {1.4, 0, 0.9};
 	std::vector<double> quat_targ = {1, 0, 0, 0}; 
 	//std::vector<double> DofVals = {-1.76080454, -0.1797336, -1.99076666, -0.21800647, 0.73899571, -0.18675692, 2.13973504, 0.14755146, 0.38328063, -0.48618576, 1.33518369};
 	std::vector<double> DofVals = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
+	std::string RandDofVals = "[[";
+
+	srand (time(NULL));
+
+	for(int i; i < 39; i++)//Populate RendDofVals.
+	{
+		float randVar = pow(-1, (rand() % 2 + 1)) *3.14159*(rand() / (RAND_MAX + 1.0));
+		DofVals[i] = randVar;
+		RandDofVals+= std::to_string(randVar);
+		if(i!=38){
+			RandDofVals += ", ";
+		}
+
+	}
+	RandDofVals += "]]";
+	//std::cout<< "Rands:  " << DofVals <<std::endl;
 
 	OpenRAVE::RobotBase::ManipulatorPtr rightArm = robot->GetManipulator("rightarm");
 
 	//robot->SetDOFValues(joints,1,rightArm->GetArmIndices());
 	robot->SetDOFValues(DofVals);
 
-	OpenRAVE::Transform init_transform = OpenRAVE::Transform(OpenRAVE::Vector(1,0,0,0),OpenRAVE::Vector(0, 0.0, 0.0));
+	OpenRAVE::Transform init_transform = OpenRAVE::Transform(OpenRAVE::Vector(1,0,0,0),OpenRAVE::Vector(0.8, 0.2, 0.0));
 	robot->SetTransform(init_transform);
 	//robot->Set(joints);
 
@@ -54,118 +70,36 @@ int main(){
 
 	//Create string stream
 	std::stringstream request;
-
-	//"Fill the JSON file:
-	/*
-	request << "{\"basic_info\": { \
-	    \"n_steps\" : 1, \
-	    \"manip\" : \"active\", \
-	    \"start_fixed\" : false \
-	  },\
-	  \"costs\" : [\
-	  {\
-	    \"type\" : \"collision\",\
-	    \"params\": {\"coeffs\" : [10], \
-	    			\"dist_pen\" : [0.025] \
-	    			}\
-	  },\
-	  ], \
-	  \"constraints\" : [\
-	  {\
-	    \"type\" : \"pose\",\
-	    \"name\" : \"final_pose\",\
-	    \"params\" : {\"pos_coeffs\" : [1,1,1],\
-	    			\"rot_coeffs\" : [1,1,1],\
-	    			\"xyz\" : "<< convertDoubleVectortoString(xyz_targ) <<",\
-	                \"wxyz\" : "<< convertDoubleVectortoString(quat_targ) <<",\
-					\"link\": r_gripper_tool_frame\
-	            }\
-	  }\
-	  ],\
-	  \"init_info\" : {\
-	  	\"type\" : \"given_traj\",\
-	  	\"data\" : [-0.66 -0.04 -0.77 -1.11 -1.82 -1.49 -2.91  0.12  0.98  0.13  3.42]\
-	  }\
-	}";
-*/
-	
-
-	
-	/*
-JSON v3
-Error: 
-
-  Missing '}' or object member name
-
-0x7fffe614f218
-ERROR missing field: init_info
-
-*/
-
-/*
-request << "{\"basic_info\" : { \
-	        \"n_steps\" : 1,\
-	        \"manip\" : \"active\",\
-	        \"start_fixed\" : false \
-	    },\
-	    \"costs\" : [\
-	    {\
-	        \"type\" : \"collision\",\
-	        \"params\" : {\"coeffs\" : [10],\
-	        	\"dist_pen\" : [0.025] \
-	    		}\
-	    }\
-	    ],\
-	    \"constraints\" :[\
-		    {\
-		        \"type\" : \"pose\",\
-		        \"name\" : \"final_pose\",\
-		        \"params\" : {\"pos_coeffs\" : [1,1,1],\
-		            \"rot_coeffs\" : [1,1,1],\
-		            \"xyz\" : "<< convertDoubleVectortoString(xyz_targ) <<",\
-		            \"wxyz\" : "<< convertDoubleVectortoString(quat_targ) <<",\
-		            \"link\" : \"r_gripper_tool_frame\",\
-		        }\
-		    }\
-	    ],\
-	    \"init_info\" : {\
-    		\"type\" : \"given_traj\",\
-    		\"data\" : [-0.66 -0.04 -0.77 -1.11 -1.82 -1.49 -2.91  0.12  0.98  0.13  3.42]\
-    	}\
-	}";
-	
-*/
-
 	request << "{\"basic_info\":{\
-\"n_steps\":1,\
-\"manip\":\"active\",\
-\"start_fixed\":false \
-},\
-\"costs\":[\
-{\
-\"type\":\"collision\",\
-\"params\":{\"coeffs\" : [10],\
-\"dist_pen\":[0.025] \
-}\
-}\
-],\
-\"constraints\" :[\
-{\
-\"type\":\"pose\",\
-\"name\":\"final_pose\",\
-\"params\":{\"pos_coeffs\":[1,1,1],\
-\"rot_coeffs\":[1,1,1],\
-\"xyz\":"<< convertDoubleVectortoString(xyz_targ) <<",\
-\"wxyz\":"<< convertDoubleVectortoString(quat_targ) <<",\
-\"link\": \"r_gripper_tool_frame\" \
-}\
-}\
-],\
-\"init_info\":{\
-\"type\":\"given_traj\",\
-\"data\": [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]\
-}\
-}";
+		\"n_steps\":1,\
+		\"manip\":\"active\",\
+		\"start_fixed\":false \
+		},\
+		\"costs\":[\
+		{\
+			\"type\":\"collision\",\
+			\"params\":{\"coeffs\" : [10],\
+			\"dist_pen\":[0.025] \
+		}\
+	}\
+	],\
+	\"constraints\" :[\
+	{\
+		\"type\":\"pose\",\
+		\"name\":\"final_pose\",\
+		\"params\":{\"pos_coeffs\":[1,1,1],\
+		\"rot_coeffs\":[1,1,1],\
+		\"xyz\":"<< convertDoubleVectortoString(xyz_targ) <<",\
+		\"wxyz\":"<< convertDoubleVectortoString(quat_targ) <<",\
+		\"link\": \"r_gripper_tool_frame\" \
+	}\
+	}\
+	],\
+	\"init_info\":{\
+		\"type\":\"given_traj\",\
+		\"data\":" << RandDofVals <<" \
+	}\
+	}";
 //"<< convertDoubleVectortoString(DofVals) <<
 //{-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
 //-1.76080454 -0.1797336 -1.99076666 -0.21800647 0.73899571 -0.18675692 2.13973504 0.14755146 0.38328063 -0.48618576 1.33518369
@@ -177,8 +111,7 @@ request << "{\"basic_info\" : { \
 	 //request["init_info"]["type"] = "given_traj"
 
 
-std::cerr<<"Converting convertDoubleVectortoString(DofVals) to an array of an array:"<<std::endl;
-std::cerr<<convertDoubleVectortoString(DofVals)<<std::endl;
+
 	 // Parsing:
 	 Json::Value root;
 	 Json::Reader reader;
