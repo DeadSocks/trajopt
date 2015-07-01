@@ -6,7 +6,7 @@ parser.add_argument("--interactive", action="store_true")
 args = parser.parse_args()
 
 import numpy as np, os.path as osp
-import cloudprocpy,trajoptpy,openravepy
+import trajoptpy,openravepy,cloudprocpy
 import json
 import trajoptpy.make_kinbodies as mk
 from trajoptpy.check_traj import traj_is_safe

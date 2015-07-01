@@ -30,7 +30,9 @@ void fromJsonArray(const Json::Value& parent, std::vector<T>& ref) {
 template <class T>
 void fromJsonArray(const Json::Value& parent, std::vector<T>& ref, int size) {
   if (parent.size() != size) {
-    PRINT_AND_THROW(boost::format("expected list of size size %i. got: %s\n")%size%parent);
+      std::cerr<<"Believed size of parent: "<<std::endl;
+      std::cerr<<parent<<std::endl;
+    PRINT_AND_THROW(boost::format("expected list of size %i. got: %s\n")%size%parent);
   }
   else {
     fromJsonArray(parent, ref);

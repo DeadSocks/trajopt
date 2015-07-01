@@ -23,7 +23,6 @@ with open("cloudproc.hpp","r") as infile:
                     funcsig_specialized = funcsig.replace("<T>","<%s>"%type)
                     outline = "template %s;\n"%(funcsig_specialized)
                     outfile.write(outline)
-        
 
                 # outfile.write("PCL_INSTANTIATE(%s, CLOUDPROC_POINT_TYPES);\n"%(funcname))        
         

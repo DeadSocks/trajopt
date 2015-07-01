@@ -62,10 +62,19 @@ def position_base_request(robot, link_name, xyz_targ, quat_targ):
     y_init = xyz_targ[1] - .5*np.sin(angle_init)    
     dofvals_init[-3:] = [x_init, y_init, angle_init]
     # END random_init
+    print("Randomly generated dofvals_init:")
+    print([dofvals_init.tolist()])
+
+    #print((len(["constraint"]["params"]["xyz"])
 
     request["init_info"]["type"] = "given_traj"
     request["init_info"]["data"] = [dofvals_init.tolist()]
-    
+
+    #print("Other Data:")
+    #print(list(quat_targ))
+    print("len of dofvals_init")
+    print(len(dofvals_init))
+
     return request
 
 def check_result(result, robot):

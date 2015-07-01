@@ -106,7 +106,6 @@ struct InitInfo {
   void fromJson(const Json::Value& v);
 };
 
-
 struct TRAJOPT_API MakesCost {
 };
 struct TRAJOPT_API MakesConstraint {

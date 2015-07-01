@@ -175,15 +175,29 @@ void InitInfo::fromJson(const Json::Value& v) {
     data = toVectorXd(gPCI->rad->GetDOFValues()).transpose().replicate(n_steps, 1);
   }
   else if (type_str == "given_traj") {
+    std::cerr<<"Test: We are getting to given_traj case!"<<std::endl;
     FAIL_IF_FALSE(v.isMember("data"));
     const Value& vdata = v["data"];
     if (vdata.size() != n_steps) {
+      std::cerr<<"Data size:"<<std::endl;
+      std::cerr<<vdata.size()<<std::endl;
+      std::cerr<<"n_steps:"<<std::endl;
+      std::cerr<<n_steps<<std::endl;
       PRINT_AND_THROW("given initialization traj has wrong length");
     }
+    else 
+    {
+      std::cerr<<"We have the correct number of Dof values as per n_steps. n_dof:"<<std::endl;
+      std::cerr<<n_dof<<std::endl;
+    }
     data.resize(n_steps, n_dof);
+    std::cerr<<"n_steps n_dof resize function has been completed. n_dof:"<<std::endl;
+    std::cerr<<n_dof<<std::endl;
     for (int i=0; i < n_steps; ++i) {
       DblVec row;
+      std::cerr<<"Dblvec row creation completed."<<std::endl;
       fromJsonArray(vdata[i], row, n_dof);
+      std::cerr<<"fromJson array complete!"<<std::endl;
       data.row(i) = toVectorXd(row);
     }
   }

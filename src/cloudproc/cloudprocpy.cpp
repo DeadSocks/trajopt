@@ -7,7 +7,7 @@
 #include "utils/stl_to_string.hpp"
  #include "cloudgrabber.hpp"
 #include "cloudproc/mesh_simplification.hpp"
-#include <pcl/ros/conversions.h>
+#include <pcl/conversions.h>
 #include <pcl/point_types.h>
 #include <boost/format.hpp>
 #include "hacd_interface.hpp"
@@ -60,6 +60,35 @@ py::object toNdarray3(const T* data, size_t dim0, size_t dim1, size_t dim2) {
   memcpy(pout, data, dim0*dim1*dim2*sizeof(T));
   return out;
 }
+
+// http://docs.pointclouds.org/1.7.0/structpcl_1_1_point_x_y_z_r_g_b.html#details
+py::object packRGBs(py::object py_rgb_i) {
+  py_rgb_i = np_mod.attr("array")(py_rgb_i, "int32");
+  int dim0 = py::extract<int>(py_rgb_i.attr("shape")[0]);
+  int dim1 = py::extract<int>(py_rgb_i.attr("shape")[1]);
+  FAIL_IF_FALSE(dim1 == 3);
+  int* rgb_i = getPointer<int>(py_rgb_i);
+  float rgb_f[dim0];
+  for (int i = 0; i < dim0; i++) {
+    uint32_t rgb = ((uint32_t)rgb_i[i*3] << 16 | (uint32_t)rgb_i[i*3+1] << 8 | (uint32_t)rgb_i[i*3+2]);
+    rgb_f[i] = *reinterpret_cast<float*>(&rgb);
+  }
+  return toNdarray1<float>(rgb_f, dim0);
+}
+py::object unpackRGBs(py::object py_rgb_f) {
+  py_rgb_f = np_mod.attr("array")(py_rgb_f, "float32");
+  int dim0 = py::extract<int>(py_rgb_f.attr("shape")[0]); // TODO check it is a 1D array
+  float* rgb_f = getPointer<float>(py_rgb_f);
+  int rgb_i[dim0*3];
+  for (int i = 0; i < dim0; i++) {
+    uint32_t rgb = *reinterpret_cast<int*>(&rgb_f[i]);
+    rgb_i[i*3]   = (uint8_t) ((rgb >> 16) & 0x0000ff);
+    rgb_i[i*3+1] = (uint8_t) ((rgb >> 8)  & 0x0000ff);
+    rgb_i[i*3+2] = (uint8_t) ((rgb)       & 0x0000ff);
+  }
+  return toNdarray2<int>(rgb_i, dim0, 3);
+}
+
 template <class T>
 struct PyCloud {
   typedef PointCloud<T> PointCloudT;
@@ -100,7 +129,7 @@ struct PyCloud {
 
 CloudXYZ::Ptr PolygonMesh_getCloud(const PolygonMesh* mesh) {
   CloudXYZ::Ptr cloud(new CloudXYZ());
-  pcl::fromROSMsg(mesh->cloud, *cloud);
+  pcl::fromPCLPointCloud2(mesh->cloud, *cloud);
   return cloud;
 }
 py::object PolygonMesh_getVertices(const PolygonMesh* mesh) {
@@ -198,11 +227,15 @@ BOOST_PYTHON_MODULE(cloudprocpy) {
   py::def("readPCDXYZ", &readPCD<PointXYZ>);
   py::def("readPCDXYZRGB", &readPCD<PointXYZRGB>);
   py::def("downsampleCloud", &downsampleCloud<PointXYZ>);
+  py::def("downsampleColorCloud", &downsampleCloud<PointXYZRGB>);
   py::def("boxFilter", &boxFilter<PointXYZ>);
   py::def("boxFilterNegative", &boxFilterNegative<PointXYZ>);
   py::def("medianFilter", &medianFilter<PointXYZ>);
   py::def("fastBilateralFilter", &fastBilateralFilter<PointXYZ>);
   py::def("maskFilter", &pyMaskFilter);
+
+  py::def("packRGBs", &packRGBs);
+  py::def("unpackRGBs", &unpackRGBs);
 
   py::class_<pcl::PolygonMesh, boost::shared_ptr<pcl::PolygonMesh> >("PolygonMesh")
       .def("getCloud", &PolygonMesh_getCloud, "Return underlying point cloud")
